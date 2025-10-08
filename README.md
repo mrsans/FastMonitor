@@ -16,13 +16,23 @@
 - 📊 **实时仪表盘**: 大屏展示网络流量、协议分布、TOP排行
 - 💾 **数据持久化**: SQLite存储 + PCAP文件归档,支持历史回溯
 - 🎨 **现代化界面**: Vue 3 + Element Plus + 深色主题
+
+
 <img width="1506" height="891" alt="截屏2025-10-08 14 11 25" src="https://github.com/user-attachments/assets/6bd2f3ef-cd7b-40df-a03c-c9d4cbc62652" />
 
+-  **上图：可视化仪表盘，网络数据一目了然**
+  
 <img width="1507" height="775" alt="截屏2025-10-08 14 10 46" src="https://github.com/user-attachments/assets/060488a4-f12a-4a78-933d-eafd9992ff5f" />
 
+-  **上图：对当前计算机进行流量进程监听，支持监听系统进程、DNS请求、网络请求等，实现安全态势感知**
+
  <img width="1506" height="891" alt="截屏2025-10-08 14 11 03" src="https://github.com/user-attachments/assets/bf6f6a38-e3b2-409d-b3d5-cd69eb7dfe81" />
+ 
+-  **上图：将当前计算机的所有网络访问进行可视化，渲染到地图组件，支持世界地图和中地图**
 
 <img width="1506" height="891" alt="截屏2025-10-08 14 11 16" src="https://github.com/user-attachments/assets/3066f854-e6aa-4c21-b3e0-772e2ca9bb65" />
+
+-  **上图：将当前计算机的所有网络访问进行可视化，将数据渲染后3D 地球 实现本网络访问可视化分析**
 
 ---
 
