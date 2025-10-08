@@ -1,0 +1,34 @@
+# Sniffer Configuration
+# 抓包程序配置文件
+
+# Ring buffer limits
+# 环形缓冲区上限
+raw_max: 20000       # 原始数据包最大条数
+dns_max: 5000        # DNS 会话最大条数
+http_max: 5000       # HTTP 会话最大条数
+icmp_max: 5000       # ICMP 会话最大条数
+
+# PCAP file rotation
+# PCAP 文件切片配置
+pcap_rotate: 10      # 保留多少个 PCAP 切片文件
+pcap_size: "100MiB"  # 单个切片文件大小
+pcap_compress: 3     # gzip 压缩级别 (1-9, 0=不压缩)
+
+# Database maintenance
+# 数据库维护配置
+db_vacuum_day: 7     # 数据保留天数
+db_vacuum_interval: "1h"  # 清理任务执行间隔
+
+# Storage paths
+# 存储路径
+data_dir: "./data"   # 数据存储目录
+pcap_dir: "./data/pcap"   # PCAP 文件目录
+db_path: "./data/sniffer.db"  # SQLite 数据库路径
+
+# Capture settings
+# 抓包设置
+snapshot_len: 65535  # 每个数据包的最大捕获长度
+promiscuous: true    # 是否启用混杂模式
+timeout: "30ms"      # 读取超时时间
+buffer_size: "10MiB" # 内核缓冲区大小
+
