@@ -1,26 +1,34 @@
-
 # FastMonitor - 网络流量监控与威胁检测工具
 
 ## 📖 项目简介
 
-**FastMonitor** 是一款基于 **Wails 框架**开发的**跨平台网络流量监控与威胁检测工具**,集成了数据包分析、进程关联、会话流统计、威胁情报检测、地理位置可视化等功能于一体。
+**FastMonitor** 是一款基于 **Wails 框架**开发开源的**跨平台网络流量监控与威胁检测工具**,集成了数据包分析、进程关联、会话流统计、威胁情报检测、地理位置可视化等功能于一体。
 
-备注：wails框架练手项目，开发周期2天，BUG较多，仅供试用。
-
+- **最新版本**: 1.0.0
+- **更新日期**: 2025/10/8
+- **下载地址**:  https://github.com/vam876/FastMonitor/releases
+  
 ### 核心特性
 
-- 🚀 **高性能抓包引擎**: 基于 gopacket/pcap 实现,支持数据包实时处理
+- 🚀 **高性能抓包引擎**: 基于 gopacket/pcap 实现,支持数据包实时处理，并对五元组会话/DNS/ICMP/HTTP进行分类展示
 - 🎯 **精准进程关联**: 自动将网络流量与进程绑定,支持主流操作系统
 - 🛡️ **智能威胁检测**: 支持自定义病毒等威胁情报IOC规则,实时告警
 - 🌍 **3D地理可视化**: 基于 ECharts GL 的3D地球和2D地图流量展示
 - 📊 **实时仪表盘**: 大屏展示网络流量、协议分布、TOP排行
 - 💾 **数据持久化**: SQLite存储 + PCAP文件归档,支持历史回溯
-- 🎨 **现代化界面**: Vue 3 + Element Plus + 深色主题
+- 🎨 **现代化界面**: Vue 3 + Element Plus + 浅色/深色主题
 
 
 <img width="1506" height="891" alt="截屏2025-10-08 14 11 25" src="https://github.com/user-attachments/assets/6bd2f3ef-cd7b-40df-a03c-c9d4cbc62652" />
 
 -  **上图：可视化仪表盘，网络数据一目了然**
+
+<img width="1384" height="861" alt="image" src="https://github.com/user-attachments/assets/2d475dbe-60b7-4e3c-acec-b220b0e28691" />
+
+-  **上图：系统网络会话监听，支持进程关联**
+<img width="1384" height="861" alt="image" src="https://github.com/user-attachments/assets/e0e8fece-8818-40cf-9a73-c680d244fd3f" />
+
+-  **上图：网络流量监控，数据外发及时发现**
   
 <img width="1507" height="775" alt="截屏2025-10-08 14 10 46" src="https://github.com/user-attachments/assets/060488a4-f12a-4a78-933d-eafd9992ff5f" />
 
@@ -30,7 +38,9 @@
  
 -  **上图：将当前计算机的所有网络访问进行可视化，渲染到地图组件，支持世界地图和中地图**
 
-<img width="1506" height="891" alt="截屏2025-10-08 14 11 16" src="https://github.com/user-attachments/assets/3066f854-e6aa-4c21-b3e0-772e2ca9bb65" />
+
+<img width="1920" height="1017" alt="截图_20251009092433" src="https://github.com/user-attachments/assets/14bddfef-e27b-4802-89a3-13dd2de22429" />
+
 
 -  **上图：将当前计算机的所有网络访问进行可视化，将数据渲染后3D 地球 实现本网络访问可视化分析**
 
@@ -56,7 +66,7 @@
 │                      FastMonitor 前端                       │
 │          Vue 3 + TypeScript + Element Plus                  │
 │  ┌──────────┬──────────┬──────────┬──────────┬──────────┐   │
-│  │仪表盘    │数据包     │会话流     │进程      │告警        │   │
+│  │仪表盘    │数据包     │会话流     │进程      │告警       │   │
 │  │2D/3D地图 │DNS/HTTP  │统计       │关联      │规则       │   │
 │  └────┬─────┴────┬─────┴────┬─────┴────┬─────┴────┬─────┘   │
 └───────┼──────────┼──────────┼──────────┼──────────┼─────────┘
@@ -67,7 +77,7 @@
 │       ▼          ▼          ▼          ▼          ▼         │
 │                  FastMonitor 后端 (Go)                      │
 │  ┌──────────┬──────────┬──────────┬──────────┬──────────┐   │
-│  │抓包引擎  │协议解析  │进程映射  │告警引擎  │存储层    │   │
+│  │抓包引擎  │协议解析   │进程映射   │告警引擎   │存储层    │   │
 │  │gopacket  │Parser    │Process   │Alert     │SQLite    │   │
 │  │          │          │Mapper    │Engine    │PCAP      │   │
 │  └────┬─────┴────┬─────┴────┬─────┴────┬─────┴────┬─────┘   │
@@ -357,7 +367,7 @@ rule := &AlertRule{
     RuleType:          "http",
     ConditionField:    "url",
     ConditionOperator: "contains",
-    ConditionValue:    "baidu.com@cuomicufvhehy.cn",
+    ConditionValue:    "cuomicufvhehy.cn",
     AlertLevel:        "critical",
 }
 ```
@@ -534,23 +544,7 @@ rule := &AlertRule{
     AlertLevel:        "critical",
 }
 
-// 进程规则 - 检测系统进程异常外联
-rule := &AlertRule{
-    Name:              "银狐病毒 - 系统进程异常外联",
-    RuleType:          "process",
-    ConditionField:    "process_name",
-    ConditionOperator: "regex",
-    ConditionValue:    "(?i)(svchost\\.exe|rundll32\\.exe|regsvr32\\.exe|mshta\\.exe|powershell\\.exe|cmd\\.exe)",
-    AlertLevel:        "warning",
-}
 ```
-
-#### 平台兼容性
-| 平台 | 方法 | 准确率 |
-|------|-----|--------|
-| **Windows** | `GetExtendedTcpTable` API | ✅ 100% |
-| **Linux** | `/proc/net/tcp` + `/proc/[pid]/fd` | ✅ 95% |
-| **macOS** | `lsof -i -P` 命令行解析 | ⚠️ 80% |
 
 ---
 
@@ -583,7 +577,7 @@ rule := &AlertRule{
 
 #### 内置威胁检测规则
 
-系统预置了**7条高质量规则**,针对**银狐病毒(SilverFox)**等APT威胁:
+系统预置了**5条示例规则**,针对**银狐病毒(SilverFox)**等APT威胁:
 
 **1. 银狐病毒 - 已知恶意进程检测** (Critical)
 - 类型: `process` 
@@ -610,10 +604,6 @@ rule := &AlertRule{
 - 特征: `baidu.com@cuomicufvhehy.cn`
 - 说明: 检测伪装成百度的钓鱼URL
 
-**6. 银狐病毒 - 系统进程异常外联** (Warning)
-- 类型: `process`
-- 特征: `svchost.exe`, `rundll32.exe`, `regsvr32.exe`, `mshta.exe`, `powershell.exe`, `cmd.exe`
-- 说明: 监控系统进程的网络外联行为,银狐常利用这些进程进行注入
 
 #### 规则匹配逻辑
 ```go
@@ -955,9 +945,8 @@ wails build
 
 ## 📧 联系方式
 
-- **项目主页**: https://github.com/your-repo/fastmonitor
-- **问题反馈**: https://github.com/your-repo/fastmonitor/issues
-- **邮箱**: team@fastmonitor.dev
+- **项目主页**: https://github.com/vam876/FastMonitor
+- **问题反馈**: https://github.com/vam876/FastMonitor/issues
 
 ---
 
@@ -973,3 +962,5 @@ wails build
 
 **FastMonitor** - 让网络流量监控更简单、更高效、更智能! 🚀
 
+
+**备注：** -  wails框架练手项目，开发周期2天，BUG较多，仅供试用。
