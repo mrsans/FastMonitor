@@ -129,7 +129,7 @@ func ListInterfaces() ([]*NetworkInterface, error) {
 4. **开始抓包** → 点击"开始捕获"按钮开始监控
 
 #### 常见问题
-- ❌ **无网卡显示**: 需要以管理员/root权限运行
+- ❌ **无网卡显示**: 需要以管理员/root权限运行，需安装Npcap (https://npcap.com/)
 - ❌ **抓包失败**: 检查WinPcap/Npcap(Windows)或libpcap(Linux/macOS)是否安装
 - ✅ **推荐网卡**: 选择活跃流量的物理网卡,避免选择回环接口
 
