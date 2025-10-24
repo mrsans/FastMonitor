@@ -4,7 +4,7 @@ import (
 	"context"
 	"embed"
 	"fmt"
-	"github.com/gin-gonic/gin"
+	"io/fs"
 	"log"
 	"net/http"
 	"os"
@@ -13,6 +13,7 @@ import (
 	"strings"
 	"syscall"
 
+	"github.com/gin-gonic/gin"
 	"sniffer/internal/capture"
 	"sniffer/internal/config"
 	"sniffer/internal/scheduler"
@@ -20,44 +21,56 @@ import (
 	"sniffer/internal/store"
 )
 
-//go:embed frontend/dist/index.html
-var Static embed.FS
+// 嵌入web目录下所有文件（包括子目录）
+//
+//go:embed web
+var webFS embed.FS
+
+// 从嵌入的文件系统中提取web子目录作为根目录
+func getWebFS() http.FileSystem {
+	// 打开嵌入的web目录
+	webDir, err := fs.Sub(webFS, "web")
+	if err != nil {
+		log.Fatalf("Failed to get web filesystem: %v", err)
+	}
+	return http.FS(webDir)
+}
 
 func main() {
-	// Load configuration
+	// 加载配置
 	cfg, err := config.Load("config.yaml")
 	if err != nil {
 		log.Printf("Warning: failed to load config: %v, using defaults", err)
 		cfg = config.Default()
 	}
 
-	// Create store
+	// 创建存储
 	st, err := store.NewComposite(cfg)
 	if err != nil {
 		log.Fatalf("Failed to create store: %v", err)
 	}
 
-	// Get underlying SQLite store for dashboard
+	// 获取SQLite存储用于dashboard
 	sqliteStore := st.GetDB()
 
-	// Create dashboard manager
+	// 创建dashboard管理器
 	dashboard := server.NewDashboardManager(sqliteStore.GetRawDB())
 
-	// Create capture
+	// 创建捕获器
 	cap := capture.New(cfg, st)
 
-	// Create scheduler
+	// 创建调度器
 	sched := scheduler.New(st, cfg)
 
-	// Create app
+	// 创建应用
 	app := server.NewApp(cfg, cap, sched, st, dashboard)
 
-	// Start scheduler in background
+	// 后台启动调度器
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 	go sched.Run(ctx)
 
-	// Handle signals
+	// 处理信号
 	sigCh := make(chan os.Signal, 1)
 	signal.Notify(sigCh, os.Interrupt, syscall.SIGTERM)
 	go func() {
@@ -71,28 +84,50 @@ func main() {
 		os.Exit(0)
 	}()
 	app.Startup(ctx)
-	// Create Wails application
+	// 创建Gin引擎
 	r := gin.Default()
-	// regist router
-	// r.Static("/", "./frontend/dist")
+	// 注册路由
 	router.RegistRouter(r, app)
-
-	r.Static("/web", "./web")
-
-	// 关键步骤 2：解决 Vue 路由刷新 404 问题（如果 Vue 用了 history 模式）
-	// 当访问一个不存在的路径时，返回 Vue 的 index.html，让 Vue 自己处理路由
+	// 提供嵌入的web资源，将/web作为根路径
+	webFileSystem := getWebFS()
+	r.StaticFS("/web", webFileSystem)
+	// 处理Vue History模式的路由刷新404问题
 	r.NoRoute(func(c *gin.Context) {
-		// 只处理 /web 前缀的路径，避免影响 API 路由
+		// 只处理/web前缀的路径
 		if strings.HasPrefix(c.Request.URL.Path, "/web") {
-			c.File("./web/index.html")
+			// 尝试从嵌入的文件系统读取index.html
+			file, err := webFileSystem.Open("index.html")
+			if err != nil {
+				c.Status(http.StatusInternalServerError)
+				return
+			}
+			defer file.Close()
+
+			// 获取文件信息
+			fileInfo, err := file.Stat()
+			if err != nil {
+				c.Status(http.StatusInternalServerError)
+				return
+			}
+
+			// 读取文件内容
+			content := make([]byte, fileInfo.Size())
+			_, err = file.Read(content)
+			if err != nil {
+				c.Status(http.StatusInternalServerError)
+				return
+			}
+
+			c.Data(http.StatusOK, "text/html; charset=utf-8", content)
 			return
 		}
-		// 非 /web 路径的 404 保持默认
+		// 非/web路径的404保持默认
 		c.Status(http.StatusNotFound)
 	})
 
-	r.Run(":8080")
-	if err != nil {
-		log.Fatal(err)
+	// 启动服务器
+	log.Println("Server starting on :38080")
+	if err := r.Run(":38080"); err != nil {
+		log.Fatalf("Server failed to start: %v", err)
 	}
 }
