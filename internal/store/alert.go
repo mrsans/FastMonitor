@@ -216,11 +216,11 @@ func (s *SQLiteStore) CreateAlertLog(log *model.AlertLog) error {
 		ORDER BY triggered_at DESC
 		LIMIT 1
 	`
-	
+
 	var existingID int64
 	var triggerCount int64
 	err := s.db.QueryRow(checkQuery, log.RuleID, log.DstIP, log.Domain).Scan(&existingID, &triggerCount)
-	
+
 	if err == nil {
 		// 找到相同告警，更新触发次数和最后触发时间
 		updateQuery := `
@@ -240,7 +240,7 @@ func (s *SQLiteStore) CreateAlertLog(log *model.AlertLog) error {
 		// 查询错误
 		return fmt.Errorf("check existing alert: %w", err)
 	}
-	
+
 	// 不存在相同告警，创建新记录
 	query := `
 		INSERT INTO alert_logs (
@@ -400,7 +400,7 @@ func (s *SQLiteStore) QueryAlertLogs(q model.AlertLogQuery) ([]*model.AlertLog, 
 
 		err := rows.Scan(
 			&log.ID, &log.RuleID, &log.RuleName, &log.RuleType, &log.AlertLevel,
-			&log.TriggeredAt, &lastTriggeredAt, &log.TriggerCount, 
+			&log.TriggeredAt, &lastTriggeredAt, &log.TriggerCount,
 			&log.SrcIP, &log.DstIP, &log.Protocol, &log.Domain,
 			&log.URL, &log.Details, &acknowledged, &acknowledgedAt, &acknowledgedBy,
 		)
@@ -431,7 +431,7 @@ func (s *SQLiteStore) QueryAlertLogs(q model.AlertLogQuery) ([]*model.AlertLog, 
 // CheckAlertRules 检查数据包是否触发告警规则
 func (s *SQLiteStore) CheckAlertRules(pkt *model.Packet, session *model.Session) error {
 	s.mu.RLock()
-	
+
 	// 查询所有启用的规则
 	query := `
 		SELECT id, name, rule_type, condition_field, condition_operator,
@@ -439,7 +439,7 @@ func (s *SQLiteStore) CheckAlertRules(pkt *model.Packet, session *model.Session)
 		FROM alert_rules
 		WHERE enabled = 1
 	`
-	
+
 	rows, err := s.db.Query(query)
 	if err != nil {
 		s.mu.RUnlock()
@@ -479,7 +479,7 @@ func (s *SQLiteStore) CheckAlertRules(pkt *model.Packet, session *model.Session)
 	for _, rule := range rules {
 		if s.matchRule(pkt, session, rule.RuleType, rule.ConditionField,
 			rule.ConditionOperator, rule.ConditionValue) {
-			
+
 			// 创建告警记录
 			log := &model.AlertLog{
 				RuleID:      rule.ID,
@@ -504,7 +504,7 @@ func (s *SQLiteStore) CheckAlertRules(pkt *model.Packet, session *model.Session)
 			} else {
 				log.Details = fmt.Sprintf("触发规则: %s, 协议: %s", rule.Name, pkt.Protocol)
 			}
-			
+
 			// 添加进程信息到详情
 			if pkt.ProcessName != "" {
 				log.Details += fmt.Sprintf(", 进程: %s (PID: %d)", pkt.ProcessName, pkt.ProcessPID)
@@ -551,8 +551,8 @@ func (s *SQLiteStore) matchRule(pkt *model.Packet, session *model.Session,
 		} else {
 			return false
 		}
-	case "http":
-			if session != nil && session.Type == "HTTP" {
+	case "util":
+		if session != nil && session.Type == "HTTP" {
 			if field == "domain" {
 				fieldValue = session.Domain
 			} else if field == "url" {
@@ -611,4 +611,3 @@ func (s *SQLiteStore) matchRule(pkt *model.Packet, session *model.Session,
 		return false
 	}
 }
-

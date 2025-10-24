@@ -354,7 +354,7 @@ func matchDNSRule(queryName string, rule *AlertRule) bool {
 // HTTP规则 - 检测恶意PNG下载
 rule := &AlertRule{
     Name:              "银狐病毒 - 恶意PNG下载检测",
-    RuleType:          "http",
+    RuleType:          "util",
     ConditionField:    "url",
     ConditionOperator: "regex",
     ConditionValue:    "(?i)183\\.167\\.230\\.197:18743/(0CFA042F|5B16AF14|57BC9B7E|test)\\.Png",
@@ -364,7 +364,7 @@ rule := &AlertRule{
 // HTTP规则 - 检测钓鱼URL
 rule := &AlertRule{
     Name:              "银狐病毒 - 钓鱼URL检测",
-    RuleType:          "http",
+    RuleType:          "util",
     ConditionField:    "url",
     ConditionOperator: "contains",
     ConditionValue:    "cuomicufvhehy.cn",

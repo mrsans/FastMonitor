@@ -11,7 +11,6 @@ import router from './router'
 
 const app = createApp(App)
 const pinia = createPinia()
-
 // Register all icons
 for (const [key, component] of Object.entries(ElementPlusIconsVue)) {
   app.component(key, component)

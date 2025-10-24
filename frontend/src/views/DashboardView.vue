@@ -378,7 +378,8 @@
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { FullScreen, Close } from '@element-plus/icons-vue'
 import * as echarts from 'echarts'
-import { GetDashboardStats, GetAlertStats, QueryAlertLogs } from '../../wailsjs/go/server/App'
+// import { GetDashboardStats, GetAlertStats, QueryAlertLogs } from '../../wailsjs/go/server/App'
+import { GetDashboardStats, GetAlertStats, QueryAlertLogs } from '../../wailsjs/go/server/App.js'
 
 const stats = ref<any>({})
 const isFullscreen = ref(false)
